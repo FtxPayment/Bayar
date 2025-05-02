@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pembayaran Gadai Crypto</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card {
+      background: rgba(30, 30, 50, 0.9);
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 580px;
+      width: 100%;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #00e0ff;
+      margin-bottom: 20px;
+    }
+
+    input, button, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin: 12px 0;
+      font-size: 16px;
+    }
+
+    button {
+      background: linear-gradient(to right, #00e0ff, #00ffc3);
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 10px #00ffc3;
+    }
+
+    footer {
+      background: #1f1f30;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      margin-top: 40px;
+      border-radius: 16px;
+      color: #ccc;
+    }
+
+    footer a {
+      color: #00c3ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .payment-section {
+      background: #2c2c50;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+
+    .payment-section h3 {
+      margin-bottom: 10px;
+      color: #33ffcc;
+    }
+
+    .bank-btn {
+      background: #5eff87;
+      color: black;
+      padding: 12px 20px;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .bank-btn:hover {
+      background: #35ff6d;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Pembayaran Gadai</h2>
+
+    <label for="name-input">Nama Lengkap:</label>
+    <input type="text" id="name-input" placeholder="Masukkan Nama Anda" />
+
+    <label for="loan-amount-input">Jumlah Pinjaman (Rp):</label>
+    <input type="number" id="loan-amount-input" placeholder="Contoh: 5000000" min="10000" />
+
+    <label for="loan-id-input">ID GADAI:</label>
+    <input type="text" id="loan-id-input" placeholder="Masukkan ID Gadai" />
+
+    <label for="amount-input">Jumlah Pembayaran (Rp):</label>
+    <input type="number" id="amount-input" placeholder="Contoh: 1000000" min="10000">
+
+    <label for="payment-method">Pilih Metode Pembayaran:</label>
+    <select id="payment-method" onchange="updatePaymentDetails()">
+      <option value="bca">Bank BCA - 1234567890 a.n. CV SELLINGWITHUS</option>
+      <option value="bri">Bank BRI - 9876543210 a.n. CV SELLINGWITHUS</option>
+      <option value="ovo">OVO - 081234567890 a.n. CV SELLINGWITHUS</option>
+      <option value="dana">DANA - 081234567890 a.n. CV SELLINGWITHUS</option>
+      <option value="gopay">GoPay - 081234567890 a.n. CV SELLINGWITHUS</option>
+    </select>
+
+    <p id="payment-details"><strong>Transfer ke:</strong><br>
+    Bank BCA - 1234567890 a.n. CV SELLINGWITHUS</p>
+
+    <button onclick="initiateBankPayment()">Saya Sudah Transfer</button>
+
+    <div class="payment-section" id="payment-status" style="display:none;">
+      <h3>Status belum di konfirmasi</h3>
+      <p>ID GADAI: <span id="loan-id-display">-</span></p>
+      <p>Jumlah Pembayaran: <span id="payment-amount">Rp 0</span></p>
+      <button onclick="confirmBankPayment()" class="bank-btn">Konfirmasi via WhatsApp</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Riwayat Pembayaran</h2>
+    <div id="history-list"></div>
+  </div>
+
+  <footer>
+    <p>Hubungi Kami:</p>
+    <p>📞 <a href="tel:+628567624130">08567624130</a> | 📧 <a href="mailto:cv.sellingwithus@gmail.com">cv.sellingwithus@gmail.com</a></p>
+  </footer>
+
+  <script>
+    function updatePaymentDetails() {
+      const method = document.getElementById('payment-method').value;
+      const detailsMap = {
+        bca: 'Bank BCA - 1234567890 a.n. CV SELLINGWITHUS',
+        bri: 'Bank BRI - 9876543210 a.n. CV SELLINGWITHUS',
+        ovo: 'OVO - 081234567890 a.n. CV SELLINGWITHUS',
+        dana: 'DANA - 081234567890 a.n. CV SELLINGWITHUS',
+        gopay: 'GoPay - 081234567890 a.n. CV SELLINGWITHUS'
+      };
+      document.getElementById('payment-details').innerHTML = `<strong>Transfer ke:</strong><br>${detailsMap[method]}`;
+    }
+
+    function initiateBankPayment() {
+      const name = document.getElementById('name-input').value.trim();
+      const loanAmount = parseFloat(document.getElementById('loan-amount-input').value);
+      const amount = parseFloat(document.getElementById('amount-input').value);
+      const loanId = document.getElementById('loan-id-input').value.trim();
+
+      if (!name || isNaN(loanAmount) || isNaN(amount) || !loanId) {
+        alert('Mohon isi semua data: Nama, Jumlah Pinjaman, ID GADAI, dan Jumlah Pembayaran!');
+        return;
+      }
+
+      document.getElementById('loan-id-display').textContent = loanId;
+      document.getElementById('payment-amount').textContent = formatRupiah(amount);
+      document.getElementById('payment-status').style.display = 'block';
+    }
+
+    function formatRupiah(angka) {
+      return 'Rp ' + angka.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function confirmBankPayment() {
+      const name = document.getElementById('name-input').value.trim();
+      const loanAmount = parseFloat(document.getElementById('loan-amount-input').value);
+      const amount = parseFloat(document.getElementById('amount-input').value);
+      const loanId = document.getElementById('loan-id-input').value.trim();
+      const formattedAmount = formatRupiah(amount);
+      const formattedLoan = formatRupiah(loanAmount);
+      const methodText = document.getElementById('payment-details').innerText;
+
+      const message = `Halo, saya telah melakukan transfer untuk pembayaran gadai:\n\n` +
+                      `• Nama: ${name}\n` +
+                      `• Jumlah Pinjaman: ${formattedLoan}\n` +
+                      `• ID GADAI: ${loanId}\n` +
+                      `• Jumlah Pembayaran: ${formattedAmount}\n` +
+                      `• Ke: ${methodText}\n\n` +
+                      `Mohon konfirmasi penerimaan. Terima kasih.`;
+
+      const history = JSON.parse(localStorage.getItem('paymentHistory') || '[]');
+      history.push({
+        idGadai: loanId,
+        amount: formattedAmount,
+        name,
+        loan: formattedLoan,
+        date: new Date().toLocaleString('id-ID')
+      });
+      localStorage.setItem('paymentHistory', JSON.stringify(history));
+      loadHistory();
+
+      // Ubah status menjadi "telah dikonfirmasi"
+      document.querySelector('#payment-status h3').textContent = 'Status telah dikonfirmasi';
+
+      const whatsappUrl = `https://wa.me/628567624130?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+
+    function loadHistory() {
+      const historyContainer = document.getElementById('history-list');
+      const history = JSON.parse(localStorage.getItem('paymentHistory') || '[]');
+
+      if (history.length === 0) {
+        historyContainer.innerHTML = '<p>Tidak ada riwayat pembayaran.</p>';
+        return;
+      }
+
+      historyContainer.innerHTML = history.reverse().map(entry => `
+        <div style="background:#1c1c3c; margin:10px 0; padding:10px; border-radius:10px;">
+          <p><strong>Nama:</strong> ${entry.name}</p>
+          <p><strong>ID GADAI:</strong> ${entry.idGadai}</p>
+          <p><strong>Jumlah Pinjaman:</strong> ${entry.loan}</p>
+          <p><strong>Total Pembayaran:</strong> ${entry.amount}</p>
+          <p><strong>Tanggal:</strong> ${entry.date}</p>
+        </div>
+      `).join('');
+    }
+
+    window.onload = function () {
+      loadHistory();
+      updatePaymentDetails();
+    };
+  </script>
+</body>
+</html>
